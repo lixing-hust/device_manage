@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备维修管理系统</title>
+    <link rel="stylesheet" href="../css/Main.css">
+    <link rel="stylesheet" href="../css/Modal.css">
+
+    <script src="../js/vue.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <style>
+        body {
+            display: flex;
+            margin: 0px;
+            flex-direction: row;
+        }
+
+        * {
+            padding: 0px;
+            margin: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main_left">
+        <div class="admin_info">
+            <div>
+                <img src="../css/skin/photo.png" width="100px" height="100px">
+            </div>
+            <div>
+                <p>&nbsp;&nbsp;管理员名称</p>
+            </div>
+        </div>
+        <div class="tab_menu">
+            <div class="active">
+                <p>客户管理</p>
+            </div>
+            <div>
+                <p>报修管理</p>
+            </div>
+            <div>
+                <p>维修管理</p>
+            </div>
+            <div>
+                <p>结算管理</p>
+            </div>
+            <div>
+                <p>备件管理</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="main_right">
+        <div class="content" style="display:block">
+            <div class="header">客户管理</div>
+            <div id="app_1" style="margin-left: 20px;">
+                <!--查询表单-->
+                <el-form :inline="true" :model="user" class="demo-form-inline">
+                    <el-form-item label="企业名称">
+                        <el-input v-model="user.companyname" placeholder="企业名称"></el-input>
+                    </el-form-item>
+                    <el-form-item label="对接负责人">
+                        <el-input v-model="user.clientname" placeholder="对接负责人"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="onSubmit">查询</el-button>
+                    </el-form-item>
+                </el-form>
+
+                <!--批量删除和新增-->
+                <el-row>
+                    <el-button type="danger" @click="deleteByIds" plain>批量删除</el-button>
+                    <el-button type="primary" @click="dialogVisible_add = true" plain>新增</el-button>
+                </el-row>
+
+                <!--新增数据对话框表单-->
+                <el-dialog title="新增客户" :visible.sync="dialogVisible_add" width="30%">
+                    <el-form ref="form" :model="user" label-width="100px">
+                        <el-form-item label="企业名称">
+                            <el-input v-model="user.companyname" placeholder="企业名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="对接负责人">
+                            <el-input v-model="user.clientname" placeholder="对接负责人"></el-input>
+                        </el-form-item>
+                        <el-form-item label="联系电话">
+                            <el-input v-model="user.phonenumber" placeholder="联系电话"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="addUser">提交</el-button>
+                            <el-button @click="dialogVisible_add=false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+
+                <!--编辑数据对话框表单-->
+                <el-dialog title="修改信息" :visible.sync="dialogVisible_edit" width="30%">
+                    <el-form ref="form" :model="form" label-width="100px">
+                        <el-form-item label="企业名称">
+                            <el-input v-model="form.companyname" placeholder="企业名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="对接负责人">
+                            <el-input v-model="form.clientname" placeholder="对接负责人"></el-input>
+                        </el-form-item>
+                        <el-form-item label="联系电话">
+                            <el-input v-model="form.phonenumber" placeholder="联系电话"></el-input>
+                        </el-form-item>
+                        <el-form-item label="任务内容">
+                            <el-input type="textarea" v-model="form.description" placeholder="任务内容"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleEdit">提交</el-button>
+                            <el-button @click="dialogVisible_edit=false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+
+                <!--表格-->
+                <template>
+                    <el-table :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
+                        <el-table-column type="selection" width="55">
+                        </el-table-column>
+                        <el-table-column type="index" width="50">
+                        </el-table-column>
+                        <el-table-column prop="companyname" label="企业名称" align="center">
+                        </el-table-column>
+                        <el-table-column prop="clientname" label="对接负责人" align="center">
+                        </el-table-column>
+                        <el-table-column prop="phonenumber" label="联系电话" align="center">
+                        </el-table-column>
+                        <el-table-column label="操作" align="center">
+                            <template slot-scope="scope">
+                                <el-button type="primary" @click="handleUpdate(scope.row.id)">修改</el-button>
+                                <el-button type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </template>
+
+                <!--分页工具条-->
+                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                    :current-page="currentPage" :page-sizes="[5, 10, 15, 20]" :page-size="100"
+                    layout="total, sizes, prev, pager, next, jumper" :total="totalCount">
+                </el-pagination>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="header">报修管理</div>
+            <div id="app_2" style="margin-left: 20px;">
+
+                <!--查询表单-->
+                <el-form :inline="true" :model="task" class="demo-form-inline">
+                    <el-form-item label="客户名称">
+                        <el-input v-model="task.clientname" placeholder="客户名称"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="onSubmit">查询</el-button>
+                    </el-form-item>
+                </el-form>
+
+                <!--批量删除和新增-->
+                <el-row>
+                    <el-button type="danger" @click="deleteByIds" plain>批量删除</el-button>
+                    <el-button type="primary" @click="dialogVisible_add = true" plain>新增</el-button>
+                </el-row>
+
+                <!--新增数据对话框表单-->
+                <el-dialog title="新增报修任务" :visible.sync="dialogVisible_add" width="30%">
+                    <el-form ref="form" :model="task" label-width="100px">
+                        <el-form-item label="客户名称">
+                            <el-input v-model="task.clientname" placeholder="客户名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="任务内容">
+                            <el-input v-model="task.description" placeholder="任务内容"></el-input>
+                        </el-form-item>
+                        <el-form-item label="维修状态">
+                            <el-select v-model="task.state" placeholder="请选择维修状态">
+                                <el-option label="待处理" value="待处理"></el-option>
+                                <el-option label="维修中" value="维修中"></el-option>
+                                <el-option label="已完成" value="已完成"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="addTask">提交</el-button>
+                            <el-button @click="dialogVisible_add=false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+
+                <!--编辑数据对话框表单-->
+                <el-dialog title="修改信息" :visible.sync="dialogVisible_edit" width="30%">
+                    <el-form ref="form" :model="form" label-width="100px">
+                        <el-form-item label="客户名称">
+                            <el-input v-model="form.clientname" placeholder="客户名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="任务内容">
+                            <el-input v-model="form.description" placeholder="任务内容"></el-input>
+                        </el-form-item>
+                        <el-form-item label="维修状态">
+                            <el-select v-model="form.state" disabled placeholder="请选择维修状态">
+                                <el-option label="待处理" value="待处理"></el-option>
+                                <el-option label="维修中" value="维修中"></el-option>
+                                <el-option label="已完成" value="已完成"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleEdit">提交</el-button>
+                            <el-button @click="dialogVisible_edit=false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+
+                <!--设定状态对话框表单-->
+                <el-dialog title="设定维修任务状态" :visible.sync="dialogVisible_state" width="30%">
+                    <el-form ref="form" :model="form" label-width="100px">
+                        <el-form-item label="客户名称">
+                            <el-input v-model="form.clientname" disabled placeholder="客户名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="任务内容">
+                            <el-input v-model="form.description" disabled placeholder="任务内容"></el-input>
+                        </el-form-item>
+                        <el-form-item label="维修状态">
+                            <el-select v-model="form.state" placeholder="请选择维修状态">
+                                <el-option label="待处理" value="待处理"></el-option>
+                                <el-option label="维修中" value="维修中"></el-option>
+                                <el-option label="已完成" value="已完成"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleStateEdit">提交</el-button>
+                            <el-button @click="dialogVisible_state=false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+
+                <!--客户确认单对话框表单-->
+                <el-dialog title="客户确认单" :visible.sync="dialogVisible_confirmation" width="30%">
+                    <el-form ref="form" :model="form" label-width="100px">
+                        <el-form-item label="客户名称">
+                            <el-input v-model="form.clientname" placeholder="客户名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="任务内容">
+                            <el-input v-model="form.description" placeholder="任务内容"></el-input>
+                        </el-form-item>
+                        <el-form-item label="维修状态">
+                            <el-input v-model="form.state" placeholder="维修状态"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="addRepair">提交</el-button>
+                            <el-button @click="dialogVisible_confirmation=false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+
+                <!--表格-->
+                <template>
+                    <el-table :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
+                        <el-table-column type="selection" width="55">
+                        </el-table-column>
+                        <el-table-column type="index" width="50">
+                        </el-table-column>
+                        <el-table-column prop="clientname" label="客户名称" align="center" width="100">
+                        </el-table-column>
+                        <el-table-column prop="description" label="任务内容" align="center" width="700">
+                        </el-table-column>
+                        <el-table-column prop="state" label="维修状态" align="center" width="80">
+                        </el-table-column>
+                        <el-table-column label="操作" align="center">
+                            <template slot-scope="scope">
+                                <el-button type="primary" @click="handleUpdate(scope.row.id)">修改</el-button>
+                                <el-button type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
+                                <el-button type="primary" @click="handleConfirmation(scope.row.id)">确认单</el-button>
+                                <el-button type="primary" @click="handleState(scope.row.id)">状态</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </template>
+
+                <!--分页工具条-->
+                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                    :current-page="currentPage" :page-sizes="[5, 10, 15, 20]" :page-size="100"
+                    layout="total, sizes, prev, pager, next, jumper" :total="totalCount">
+                </el-pagination>
+            </div>
+        </div>
+        <div class="content">
+            <div class="header">维修管理</div>
+            <div id="app_3" style="margin-left: 20px;">
+
+                <!--查询表单-->
+                <el-form :inline="true" :model="repair" class="demo-form-inline">
+                    <el-form-item label="客户名称">
+                        <el-input v-model="repair.clientname" placeholder="客户名称"></el-input>
+                    </el-form-item>
+                    <el-form-item label="维修人员">
+                        <el-input v-model="repair.repairname" placeholder="维修人员"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="onSubmit">查询</el-button>
+                    </el-form-item>
+                </el-form>
+
+                <!--批量删除和新增-->
+                <el-row>
+                    <el-button type="danger" @click="deleteByIds" plain>批量删除</el-button>
+                </el-row>
+
+                <!--编辑数据对话框表单-->
+                <el-dialog title="修改信息" :visible.sync="dialogVisible_edit" width="30%">
+                    <el-form ref="form" :model="form" label-width="100px">
+                        <el-form-item label="客户名称">
+                            <el-input v-model="form.clientname" placeholder="客户名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="任务描述">
+                            <el-input v-model="form.description" placeholder="任务描述"></el-input>
+                        </el-form-item>
+                        <el-form-item label="维修人员">
+                            <el-input v-model="form.repairname" disabled placeholder="维修人员"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleEdit">提交</el-button>
+                            <el-button @click="dialogVisible_edit=false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+
+                <!--分配维修人员对话框表单-->
+                <el-dialog title="分配维修人员" :visible.sync="dialogVisible_repairman" width="30%">
+                    <el-form ref="form" :model="form" label-width="100px">
+                        <el-form-item label="客户名称">
+                            <el-input v-model="form.clientname" disabled placeholder="客户名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="任务描述">
+                            <el-input v-model="form.description" disabled placeholder="任务描述"></el-input>
+                        </el-form-item>
+                        <el-form-item label="维修人员">
+                            <el-input v-model="form.repairname" placeholder="维修人员"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleEditRepairman">提交</el-button>
+                            <el-button @click="dialogVisible_repairman=false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+
+                <!--表格-->
+                <template>
+                    <el-table :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
+                        <el-table-column type="selection" width="55">
+                        </el-table-column>
+                        <el-table-column type="index" width="50">
+                        </el-table-column>
+                        <el-table-column prop="clientname" label="客户名称" align="center" width="100">
+                        </el-table-column>
+                        <el-table-column prop="description" label="任务内容" align="center" width="700">
+                        </el-table-column>
+                        <el-table-column prop="repairname" label="维修人员" align="center" width="80">
+                        </el-table-column>
+                        <el-table-column label="操作" align="center">
+                            <template slot-scope="scope">
+                                <el-button type="primary" @click="handleUpdate(scope.row.id)">修改</el-button>
+                                <el-button type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
+                                <el-button type="info" @click="handleRepairman(scope.row.id)">分配维修人员</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </template>
+
+                <!--分页工具条-->
+                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                    :current-page="currentPage" :page-sizes="[5, 10, 15, 20]" :page-size="100"
+                    layout="total, sizes, prev, pager, next, jumper" :total="totalCount">
+                </el-pagination>
+            </div>
+        </div>
+        <div class="content">
+            <div class="header">结算管理</div>
+            <div id="app_4" style="margin-left: 20px;">
+
+                <!--查询表单-->
+                <el-form :inline="true" :model="settle" class="demo-form-inline">
+                    <el-form-item label="客户名称">
+                        <el-input v-model="settle.clientname" placeholder="客户名称"></el-input>
+                    </el-form-item>
+                    <el-form-item label="维修人员">
+                        <el-input v-model="settle.repairname" placeholder="维修人员"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="onSubmit">查询</el-button>
+                        <el-button type="primary" @click="dialogVisible_add = true" plain>登记</el-button>
+                    </el-form-item>
+                </el-form>
+
+                <!--新增数据对话框表单-->
+                <el-dialog title="登记结算信息" :visible.sync="dialogVisible_add" width="30%">
+                    <el-form ref="form" :model="settle" label-width="100px">
+                        <el-form-item label="客户名称">
+                            <el-input v-model="settle.clientname" placeholder="客户名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="任务内容">
+                            <el-input v-model="settle.description" placeholder="任务内容"></el-input>
+                        </el-form-item>
+                        <el-form-item label="维修人员">
+                            <el-input v-model="settle.repairname" placeholder="维修人员"></el-input>
+                        </el-form-item>
+                        <el-form-item label="结算金额">
+                            <el-input v-model="settle.money" placeholder="结算金额"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="addSettle">提交</el-button>
+                            <el-button @click="dialogVisible_add=false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+
+                <!--表格-->
+                <template>
+                    <el-table :data="tableData" stripe style="width: 100%">
+                        <el-table-column type="index" width="50">
+                        </el-table-column>
+                        <el-table-column prop="clientname" label="客户名称" align="center">
+                        </el-table-column>
+                        <el-table-column prop="description" label="任务内容" align="center">
+                        </el-table-column>
+                        <el-table-column prop="repairname" label="维修人员" align="center">
+                        </el-table-column>
+                        <el-table-column prop="money" label="结算金额" align="center">
+                        </el-table-column>
+                    </el-table>
+                </template>
+
+                <!--分页工具条-->
+                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                    :current-page="currentPage" :page-sizes="[5, 10, 15, 20]" :page-size="100"
+                    layout="total, sizes, prev, pager, next, jumper" :total="totalCount">
+                </el-pagination>
+            </div>
+        </div>
+        <div class="content">
+            <div class="header">备件管理</div>
+            <div id="app_5" style="margin-left: 20px;">
+
+                <!--查询表单-->
+                <el-form :inline="true" :model="component" class="demo-form-inline">
+                    <el-form-item label="零件名称">
+                        <el-input v-model="component.name" placeholder="零件名称"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="onSubmit">查询</el-button>
+                        <el-button type="primary" @click="dialogVisible_add = true" plain>新增备件</el-button>
+                        <el-button type="info" @click="dialogVisible_add = true" plain>检查库存状态</el-button>
+                    </el-form-item>
+                </el-form>
+
+                <!--新增数据对话框表单-->
+                <el-dialog title="新增备件" :visible.sync="dialogVisible_add" width="30%">
+                    <el-form ref="form" :model="component" label-width="100px">
+                        <el-form-item label="零件名称">
+                            <el-input v-model="component.name" placeholder="零件名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="库存数量">
+                            <el-input v-model="component.count" placeholder="库存数量"></el-input>
+                        </el-form-item>
+                        <el-form-item label="单件金额">
+                            <el-input v-model="component.money" placeholder="单件金额"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="addComponent">提交</el-button>
+                            <el-button @click="dialogVisible_add=false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+
+                <!--出库对话框表单-->
+                <el-dialog title="备件出库" :visible.sync="dialogVisible_out" width="30%">
+                    <el-form ref="form" :model="form" label-width="100px">
+                        <el-form-item label="零件名称">
+                            <el-input v-model="form.name" placeholder="零件名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="单件金额">
+                            <el-input v-model="form.money" placeholder="单件金额"></el-input>
+                        </el-form-item>
+                        <el-form-item label="出库数量">
+                            <el-input v-model="form.count" placeholder="出库数量"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleEditOut">提交</el-button>
+                            <el-button @click="dialogVisible_out=false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+
+                <!--入库对话框表单-->
+                <el-dialog title="备件入库" :visible.sync="dialogVisible_in" width="30%">
+                    <el-form ref="form" :model="form" label-width="100px">
+                        <el-form-item label="零件名称">
+                            <el-input v-model="form.name" disabled placeholder="零件名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="单件金额">
+                            <el-input v-model="form.money" disabled placeholder="单件金额"></el-input>
+                        </el-form-item>
+                        <el-form-item label="入库个数">
+                            <el-input v-model="form.count" placeholder="入库个数"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleEditIn">提交</el-button>
+                            <el-button @click="dialogVisible_in=false">取消</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-dialog>
+
+                <!--表格-->
+                <template>
+                    <el-table :data="tableData" stripe style="width: 100%">
+                        <el-table-column type="index" width="50">
+                        </el-table-column>
+                        <el-table-column prop="name" label="零件名称" align="center">
+                        </el-table-column>
+                        <el-table-column prop="count" label="库存数量" align="center">
+                        </el-table-column>
+                        <el-table-column prop="money" label="单件金额" align="center">
+                        </el-table-column>
+                        <el-table-column label="操作" align="center">
+                            <template slot-scope="scope">
+                                <el-button type="primary" @click="handleOut(scope.row.id)">出库</el-button>
+                                <el-button type="success" @click="handleIn(scope.row.id)">入库</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </template>
+
+                <!--分页工具条-->
+                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                    :current-page="currentPage" :page-sizes="[5, 10, 15, 20]" :page-size="100"
+                    layout="total, sizes, prev, pager, next, jumper" :total="totalCount">
+                </el-pagination>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app_1.js">
+    </script>
+    <script src="../js/app_2.js">
+    </script>
+    <script src="../js/app_3.js">
+    </script>
+    <script src="../js/app_4.js">
+    </script>
+    <script src="../js/app_5.js">
+    </script>
+</body>
+
+<script>
+    // 实现tab标签切换
+    window.onload = function () {
+        var tabs = document.getElementsByClassName("tab_menu");
+        var tab = tabs[0].getElementsByTagName("div");
+        var content = document.getElementsByClassName("main_right");
+        var con = content[0].getElementsByClassName("content");
+        for (let i = 0; i < tab.length; i++) {
+            //为每一个tab键绑定事件
+            tab[i].onclick = function () {
+                for (let j = 0; j < tab.length; j++) {
+                    tab[j].className = '';
+                    con[j].style.display = "none";
+                    // 隐藏未点击的盒子
+                }
+                this.className = "active";
+                // 点击的那个盒子添加指定类名
+                tab[i].index = i;
+                //循环把i的值赋值给it的index
+                con[i].style.display = "block";
+                //根据索引显示相应的div
+            }
+        }
+    }
+</script>
+
+</html>
