@@ -13,16 +13,12 @@ new Vue({
                     var index = (this.currentPage - 1) * this.pageSize;
                     var _this = this;
 
-                    //console.log(_this.pageSize);
-                    //console.log(index);
-
                     axios({
                         method: "get",
                         url: "http://localhost/clients/page?pageSize="+_this.pageSize+"&index="+index+"",
                     }).then(function (resp) {
                         //设置表格数据
                         _this.tableData = resp.data;
-                        //console.log(resp);
                     })
                 },
 
@@ -33,12 +29,19 @@ new Vue({
                         url: "http://localhost/clients",
                     }).then(function (resp) {
                         _this.totalCount = resp.data;
-                        //console.log(_this.totalCount);
                     })
                 },
 
+                onclick(){
+                    this.dialogVisible_add = true;
+
+                    this.user.clientname="";
+                    this.user.companyname="";
+                    this.user.phonenumber="";
+                    this.user.description="";
+                },
+
                 selectByName() {
-                    //console.log(this.user);
                     var _this = this;
                     axios({
                         method: "post",
@@ -59,7 +62,6 @@ new Vue({
 
                 //条件查询方法
                 onSubmit() {
-                    //console.log(this.user);
                     this.selectByName();
                 },
 
@@ -67,7 +69,6 @@ new Vue({
                 addUser() {
                     //发送ajax异步请求发送数据
                     var _this = this;
-                    //console.log(this.user);
                     axios({
                         method: "post",
                         url: "http://localhost/clients",
@@ -77,6 +78,11 @@ new Vue({
                             //关闭窗口
                             _this.dialogVisible_add = false;
                             //重新查询、重载页面
+                            _this.user.clientname="";
+                            _this.user.companyname="";
+                            _this.user.phonenumber="";
+                            _this.user.description="";
+
                             _this.selectByPage();
 
                             _this.$message({
@@ -98,49 +104,6 @@ new Vue({
                     //重新设置当前页
                     this.currentPage = val;
                     this.selectByPage();
-                },
-
-                //批量删除
-                deleteByIds() {
-                    //弹出确认框，防止误操作
-                    this.$confirm('此操作将永久删除所选数据, 是否继续?', '提示', {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'warning'
-                    }).then(() => {
-                        //点击确认按钮，执行删除操作
-
-                        //创建id数组,从复选框获取
-                        for (let i = 0; i < this.multipleSelection.length; i++) {
-                            let selectionElement = this.multipleSelection;
-                            this.selectedIds[i] = selectionElement.id;
-                        }
-
-                        var _this = this;
-                        //发送ajax请求
-                        axios({
-                            method: "post",
-                            url: "",
-                            data: _this.selectedIds
-                        }).then(function (resp) {
-                            if (resp.data == "success") {
-                                //删除成功
-
-                                //重新查询、重载页面
-                                _this.selectByPage();
-
-                                _this.$message({
-                                    message: '删除成功！',
-                                    type: 'success'
-                                });
-                            }
-                        })
-                    }).catch(() => {
-                        this.$message({
-                            type: 'info',
-                            message: '已取消删除'
-                        });
-                    });
                 },
 
                 //单项删除

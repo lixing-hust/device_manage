@@ -47,8 +47,9 @@ public class ClientController {
             return clientService.getByClientName(clientname);
         else if((clientname==null || clientname=="")&&(companyname!=null && companyname !=""))
             return clientService.getByCompanyName(companyname);
-        else
+        else if((clientname!=null && clientname!="")&&(companyname!=null && companyname !=""))
             return clientService.getByClientCompanyName(clientname,companyname);
+        else return clientService.getAll();
     }
 
     @GetMapping

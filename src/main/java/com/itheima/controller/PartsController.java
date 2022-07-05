@@ -55,7 +55,9 @@ public class PartsController {
     @ResponseBody
     public List<Parts> getByName(@RequestBody Parts parts){
         String name = parts.getName();
-        return partsService.getByName(name);
+        if(name!=null&&name!="")
+            return partsService.getByName(name);
+        else return partsService.getAll();
     }
 
     @GetMapping

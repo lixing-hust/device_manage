@@ -35,7 +35,7 @@
                 <img src="../css/skin/photo.png" width="100px" height="100px">
             </div>
             <div>
-                <p>&nbsp;&nbsp;管理员名称</p>
+                <p>欢迎使用系统</p>
             </div>
         </div>
         <div class="tab_menu">
@@ -59,7 +59,7 @@
 
     <div class="main_right">
         <div class="content" style="display:block">
-            <div class="header">客户管理</div>
+            <div class="header"><i><strong>客 户 管 理</strong></i></div>
             <div id="app_1" style="margin-left: 20px;">
                 <!--查询表单-->
                 <el-form :inline="true" :model="user" class="demo-form-inline">
@@ -71,14 +71,9 @@
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="onSubmit">查询</el-button>
+                        <el-button type="primary" @click="onclick" plain>新增客户</el-button>
                     </el-form-item>
                 </el-form>
-
-                <!--批量删除和新增-->
-                <el-row>
-                    <el-button type="danger" @click="deleteByIds" plain>批量删除</el-button>
-                    <el-button type="primary" @click="dialogVisible_add = true" plain>新增</el-button>
-                </el-row>
 
                 <!--新增数据对话框表单-->
                 <el-dialog title="新增客户" :visible.sync="dialogVisible_add" width="30%">
@@ -124,8 +119,6 @@
                 <!--表格-->
                 <template>
                     <el-table :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
-                        <el-table-column type="selection" width="55">
-                        </el-table-column>
                         <el-table-column type="index" width="50">
                         </el-table-column>
                         <el-table-column prop="companyname" label="企业名称" align="center">
@@ -152,7 +145,7 @@
         </div>
 
         <div class="content">
-            <div class="header">报修管理</div>
+            <div class="header"><i><strong>报 修 管 理</strong></i></div>
             <div id="app_2" style="margin-left: 20px;">
 
                 <!--查询表单-->
@@ -162,14 +155,9 @@
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="onSubmit">查询</el-button>
+                        <el-button type="primary" @click="dialogVisible_add = true" plain>新增报修任务</el-button>
                     </el-form-item>
                 </el-form>
-
-                <!--批量删除和新增-->
-                <el-row>
-                    <el-button type="danger" @click="deleteByIds" plain>批量删除</el-button>
-                    <el-button type="primary" @click="dialogVisible_add = true" plain>新增</el-button>
-                </el-row>
 
                 <!--新增数据对话框表单-->
                 <el-dialog title="新增报修任务" :visible.sync="dialogVisible_add" width="30%">
@@ -262,8 +250,6 @@
                 <!--表格-->
                 <template>
                     <el-table :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
-                        <el-table-column type="selection" width="55">
-                        </el-table-column>
                         <el-table-column type="index" width="50">
                         </el-table-column>
                         <el-table-column prop="clientname" label="客户名称" align="center" width="100">
@@ -291,7 +277,7 @@
             </div>
         </div>
         <div class="content">
-            <div class="header">维修管理</div>
+            <div class="header"><i><strong>维 修 管 理</strong></i></div>
             <div id="app_3" style="margin-left: 20px;">
 
                 <!--查询表单-->
@@ -306,11 +292,6 @@
                         <el-button type="primary" @click="onSubmit">查询</el-button>
                     </el-form-item>
                 </el-form>
-
-                <!--批量删除和新增-->
-                <el-row>
-                    <el-button type="danger" @click="deleteByIds" plain>批量删除</el-button>
-                </el-row>
 
                 <!--编辑数据对话框表单-->
                 <el-dialog title="修改信息" :visible.sync="dialogVisible_edit" width="30%">
@@ -353,8 +334,6 @@
                 <!--表格-->
                 <template>
                     <el-table :data="tableData" stripe style="width: 100%" @selection-change="handleSelectionChange">
-                        <el-table-column type="selection" width="55">
-                        </el-table-column>
                         <el-table-column type="index" width="50">
                         </el-table-column>
                         <el-table-column prop="clientname" label="客户名称" align="center" width="100">
@@ -381,7 +360,7 @@
             </div>
         </div>
         <div class="content">
-            <div class="header">结算管理</div>
+            <div class="header"><i><strong>结 算 管 理</strong></i></div>
             <div id="app_4" style="margin-left: 20px;">
 
                 <!--查询表单-->
@@ -444,7 +423,7 @@
             </div>
         </div>
         <div class="content">
-            <div class="header">备件管理</div>
+            <div class="header"><i><strong>备 件 管 理</strong></i></div>
             <div id="app_5" style="margin-left: 20px;">
 
                 <!--查询表单-->
@@ -454,8 +433,8 @@
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="onSubmit">查询</el-button>
-                        <el-button type="primary" @click="dialogVisible_add = true" plain>新增备件</el-button>
-                        <el-button type="info" @click="dialogVisible_add = true" plain>检查库存状态</el-button>
+                        <el-button type="primary" @click="onclick" plain>新增备件</el-button>
+                        <el-button type="info" @click="selectByCheck" plain>检查库存状态</el-button>
                     </el-form-item>
                 </el-form>
 

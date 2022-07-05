@@ -42,7 +42,9 @@ public class TaskController {
     @ResponseBody
     public List<Task> getByClientName(@RequestBody Task task){
         String clientname=task.getClientname();
+        if(clientname!=null&&clientname!="")
         return taskService.getByName(clientname);
+        else return taskService.getAll();
     }
 
     @GetMapping

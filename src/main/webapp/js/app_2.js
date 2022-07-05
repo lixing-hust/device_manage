@@ -49,7 +49,16 @@ new Vue({
                         _this.totalCount = _this.tableData.length;
                     })
                 },
-                
+
+                // onclick(){
+                //     this.dialogVisible_add = true;
+                //
+                //     this.task.clientname="";
+                //     this.task.description="";
+                //     this.task.state="";
+                //     this.task.repairname="";
+                // },
+
                 //复选框选中后回调函数
                 handleSelectionChange(val) {
                     this.multipleSelection = val;
@@ -74,6 +83,12 @@ new Vue({
                             //添加成功
                             //关闭窗口
                             _this.dialogVisible_add = false;
+
+                            _this.task.clientname="";
+                            _this.task.description="";
+                            _this.task.state="";
+                            _this.task.repairname="";
+
                             //重新查询、重载页面
                             _this.selectByPage();
 

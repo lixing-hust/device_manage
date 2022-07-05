@@ -46,6 +46,15 @@ new Vue({
                     })
                 },
 
+                // onclick(){
+                //     this.dialogVisible_add = true;
+                //
+                //     this.settle.clientname="";
+                //     this.settle.description="";
+                //     this.settle.repairname="";
+                //     this.settle.money="";
+                // },
+
                 //条件查询方法
                 onSubmit() {
                     console.log(this.settle);
@@ -65,6 +74,12 @@ new Vue({
                             //添加成功
                             //关闭窗口
                             _this.dialogVisible_add = false;
+
+                            _this.settle.clientname="";
+                            _this.settle.description="";
+                            _this.settle.repairname="";
+                            _this.settle.money="";
+
                             //重新查询、重载页面
                             _this.selectByPage();
 

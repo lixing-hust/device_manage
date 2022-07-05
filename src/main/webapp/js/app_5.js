@@ -46,6 +46,27 @@ new Vue({
                     })
                 },
 
+                onclick(){
+                    this.dialogVisible_add = true;
+
+                    this.component.money="";
+                    this.component.count="";
+                    this.component.name="";
+                },
+
+                selectByCheck() {
+                    var _this = this;
+                    axios({
+                        method: "get",
+                        url: "http://localhost/partss/state"
+                    }).then(function (resp) {
+                        //设置表格数据
+                        _this.tableData = resp.data;
+                        //设置总记录数
+                        _this.totalCount = _this.tableData.length;
+                    })
+                },
+
                 //条件查询方法
                 onSubmit() {
                     console.log(this.component);
@@ -65,6 +86,11 @@ new Vue({
                             //添加成功
                             //关闭窗口
                             _this.dialogVisible_add = false;
+
+                            _this.component.money="";
+                            _this.component.count="";
+                            _this.component.name="";
+
                             //重新查询、重载页面
                             _this.selectByPage();
 
