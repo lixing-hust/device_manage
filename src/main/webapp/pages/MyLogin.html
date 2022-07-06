@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Expires" content="0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Cache-control" content="no-cache">
+  <meta http-equiv="Cache" content="no-cache">
+
+  <title>登录</title>
+  <style type="text/css">
+    body {
+      margin: 0px;
+      background-image: url(../css/skin/login_bg.jpg);
+      background-repeat: repeat-x;
+      background-size: auto 725px;
+    }
+  </style>
+  <link rel="stylesheet" href="../css/Login.css">
+  <script type="text/javascript" src="ajax/AjaxRequest.js"></script>
+  <script src="js/jquery-3.5.0.min.js"></script>
+  <script src="js/base.js"></script>
+  <script>
+    //全局的BASE_URL，当后端请求的端口或url发生改变时，在这里修改
+    let BASE_URL = "";
+    const session = window.sessionStorage;
+    // 检查输入信息
+    function Login() {
+      var userid = document.getElementById("userid");
+      var userpw = document.getElementById("password");
+      var form = document.getElementById("userform");
+
+      if (userid.value == "root" && userpw.value == "123456") {
+        form.action="./TestMain.html";
+      } else {
+        form.action = "#";
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <div class="login_top"></div>
+  <div class="login_middle">
+    <div class="login_middle_left">
+      <div class="login_middle_content">
+        <div class="logo"><img src="../css/skin/logo.png" width="320px" height="80px"></div>
+        <div width="320px" height="80px" style="color: gray;">1、本系统仅针对管理员开放，用于后台信息登记和管理</div>
+        <div width="320px" height="80px" style="color: gray;">2、本系统提供客户管理、报修管理、维修管理、结算管理、备件管理几项功能</div>
+        <div width="320px" height="80px" style="color: gray;">3、部分功能有实现对应的增删改查操作，方便管理员使用</div>
+      </div>
+    </div>
+    <div class="login_middle_right">
+      <div class="login_form">
+        <form id="userform" action="#" method="get">
+          <div width="300px" height="60px" style="font-size: larger;padding-bottom: 10%;">系统登录</div>
+          <div width="300px" height="60px" style="padding-bottom: 10%;"><span>账号</span><input id="userid" type="text" name="username"></div>
+          <div width="300px" height="60px" style="padding-bottom: 10%;"><span>密码</span><input id="password" type="password" name="pwd"></div>
+          <div width="300px" height="60px"><input type="submit" value="登录" onclick="Login()"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="login_bottom">
+    <span class="login_bottom_text">Copyright&copy; 2022-2027 www.devicemanage.com</span>
+  </div>
+</body>
+
+</html>
