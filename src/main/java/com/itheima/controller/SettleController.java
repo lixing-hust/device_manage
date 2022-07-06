@@ -51,7 +51,7 @@ public class SettleController {
             return settleService.getByRepairName(repairname);
         else if((clientname!=null && clientname!="")&&(repairname!=null && repairname !=""))
             return settleService.getByClientRepairName(clientname,repairname);
-        else return settleService.getAll();
+        else return settleService.getByPage(5,0);
     }
 
     @GetMapping

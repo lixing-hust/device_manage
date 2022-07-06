@@ -49,7 +49,7 @@ public class RepairController {
             return repairService.getByRepairName(repairname);
         else if((clientname!=null && clientname!="")&&(repairname!=null && repairname !=""))
             return repairService.getByClientRepairName(clientname,repairname);
-        else return repairService.getAll();
+        else return repairService.getByPage(5,0);
     }
 
     @GetMapping

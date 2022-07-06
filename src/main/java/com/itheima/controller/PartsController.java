@@ -57,7 +57,7 @@ public class PartsController {
         String name = parts.getName();
         if(name!=null&&name!="")
             return partsService.getByName(name);
-        else return partsService.getAll();
+        else return partsService.getByPage(5,0);
     }
 
     @GetMapping
